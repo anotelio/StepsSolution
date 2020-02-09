@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Flows;
 
@@ -6,32 +7,42 @@ namespace StepsConsoleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // GET controller ReturnLabelWithoutLabel
             {
+                Console.WriteLine($"Start ReturnLabelWithoutLabel GET controller.");
+
                 var returnLabelFlow = new ReturnLabelFlow();
 
-                var label = returnLabelFlow.Run(100);
+                Console.WriteLine($"Start ReturnLabelFlow.");
 
-                Console.WriteLine($"Process {label.LabelFile} in GET controller");
+                var label = await returnLabelFlow.RunAsync(100);
+
+                Console.WriteLine($"Finish ReturnLabelFlow.");
+                Console.WriteLine($"Process {label.LabelFile} in ReturnLabelWithoutLabel GET controller finished");
                 Console.WriteLine();
             }
 
             // PUT controller ReturnLabelWithLabel
             {
+                Console.WriteLine($"Start ReturnLabelWithLabel PUT controller.");
+
                 var labelAddToDbFlow = new LabelAddToDbFlow();
 
                 var label = new LabelDto()
                 {
                     ReturnHeadId = 50,
                     Carrier = "DHL",
-                    LabelFile = "BestEverFile.pdf"
+                    LabelFile = "GoldenFile.pdf"
                 };
 
-                labelAddToDbFlow.Run(label);
+                Console.WriteLine($"Start LabelAddToDbFlow.");
 
-                Console.WriteLine($"Process {label.LabelFile} in PUT controller");
+                await labelAddToDbFlow.RunAsync(label);
+
+                Console.WriteLine($"Finish LabelAddToDbFlow.");
+                Console.WriteLine($"Process {label.LabelFile} in ReturnLabelWithLabel PUT controller finished");
                 Console.WriteLine();
             }
 

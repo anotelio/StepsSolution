@@ -1,4 +1,5 @@
-﻿using StepsConsoleApp.Contracts;
+﻿using System.Threading.Tasks;
+using StepsConsoleApp.Contracts;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Data;
 
@@ -6,9 +7,9 @@ namespace StepsConsoleApp.Steps
 {
     public class DhlLabelGetStep : IPipelineStep<AddressDto, LabelDto>
     {
-        public LabelDto Run(AddressDto address)
+        public async Task<LabelDto> RunAsync(Task<AddressDto> address)
         {
-            return DataValues.DhlLabelGet(address);
+            return await DataValues.DhlLabelGet(address.Result);
         }
     }
 }

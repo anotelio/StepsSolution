@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace StepsConsoleApp.Contracts
 {
@@ -8,22 +9,22 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public interface IPipelineStep
     {
+        Task RunAsync();
     }
-
 
     /// <summary>
     /// Base type for individual pipeline steps.
     /// Descendants of this type map an input value to an output value.
     /// The input and output types can differ.
     /// </summary>
-    public interface IPipelineStep<INPUT, OUTPUT> : IPipelineStep
+    public interface IPipelineStep<INPUT, OUTPUT>
     {
-        OUTPUT Run(INPUT input);
+        Task<OUTPUT> RunAsync(Task<INPUT> input);
     }
 
-    public interface IPipelineStep<INPUT> : IPipelineStep
+    public interface IPipelineStep<INPUT>
     {
-        void Run(INPUT input);
+        Task RunAsync(Task<INPUT>input);
     }
 
     /// <summary>
@@ -31,14 +32,19 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public static class PipelineStepExtensions
     {
-        public static OUTPUT Step<INPUT, OUTPUT>(this INPUT input, IPipelineStep<INPUT, OUTPUT> step)
+        public static async Task Step(IPipelineStep step)
         {
-            return step.Run(input);
+            await step.RunAsync();
         }
 
-        public static void Step<INPUT>(this INPUT input, IPipelineStep<INPUT> step)
+        public static async Task<OUTPUT> Step<INPUT, OUTPUT>(this Task<INPUT> input, IPipelineStep<INPUT, OUTPUT> step)
         {
-            step.Run(input);
+            return await step.RunAsync(input);
+        }
+
+        public static async Task Step<INPUT>(this Task<INPUT> input, IPipelineStep<INPUT> step)
+        {
+            await step.RunAsync(input);
         }
     }
 
@@ -49,23 +55,33 @@ namespace StepsConsoleApp.Contracts
     /// The initial and final types of the set of steps must match the input and output types of this class,
     /// but the intermediate types can vary.
     /// </summary>
-    public class Pipeline<INPUT, OUTPUT> : IPipelineStep<INPUT, OUTPUT>
+    public partial class Pipeline : IPipelineStep
     {
-        public Func<INPUT, OUTPUT> PipelineSteps { get; protected set; }
+        public Action<Task> PipelineSteps { get; protected set; }
 
-        public OUTPUT Run(INPUT input)
+        public async Task RunAsync()
         {
-            return PipelineSteps(input);
+            await Task.Run(() => PipelineSteps);
         }
     }
 
-    //public partial class Pipeline<INPUT> : IPipelineStep<INPUT>
-    //{
-    //    public Func<INPUT, INPUT> PipelineInputSteps { get; protected set; }
+    public partial class Pipeline<INPUT, OUTPUT> : IPipelineStep<INPUT, OUTPUT>
+    {
+        public Func<Task<INPUT>, Task<OUTPUT>> PipelineSteps { get; protected set; }
 
-    //    public INPUT Run(INPUT input)
-    //    {
-    //        return PipelineInputSteps(input);
-    //    }
-    //}
+        public async Task<OUTPUT> RunAsync(Task<INPUT> input)
+        {
+            return await PipelineSteps(input);
+        }
+    }
+
+    public partial class Pipeline<INPUT> : IPipelineStep<INPUT>
+    {
+        public Action<Task<INPUT>> PipelineSteps { get; protected set; }
+
+        public async Task RunAsync(Task<INPUT> input)
+        {
+            await Task.Run(() => PipelineSteps(input));
+        }
+    }
 }

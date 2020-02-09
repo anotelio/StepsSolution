@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Pipelines;
 
@@ -6,16 +6,17 @@ namespace StepsConsoleApp.Flows
 {
     public class ReturnLabelFlow
     {
-        public LabelDto Run(long returnHeadId)
+        private readonly ReturnLabelPipeline returnLabelPipeline;
+
+        public ReturnLabelFlow()
         {
-            Console.WriteLine($"Start ReturnLabelFlow.");
+            this.returnLabelPipeline = new ReturnLabelPipeline();
+        }
 
-            var pipeline = new ReturnLabelPipeline();
-            var output = pipeline.Run(returnHeadId);
-
-            Console.WriteLine($"Finish ReturnLabelFlow.");
-
-            return output;
+        public async Task<LabelDto> RunAsync(long returnHeadId)
+        {
+            return await this.returnLabelPipeline
+                .RunAsync(Task.FromResult(returnHeadId));
         }
     }
 }

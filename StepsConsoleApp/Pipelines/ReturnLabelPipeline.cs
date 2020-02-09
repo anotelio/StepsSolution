@@ -6,17 +6,32 @@ namespace StepsConsoleApp.Pipelines
 {
     public class ReturnLabelPipeline : Pipeline<long, LabelDto>
     {
+        private readonly AddressGetStep addressGetStep;
+
+        private readonly DhlLabelGetStep dhlLabelGetStep;
+
+        private readonly LabelAddToDbStep labelAddToDbStep;
+
         public ReturnLabelPipeline()
         {
-            PipelineSteps = (input) =>
+            this.addressGetStep = new AddressGetStep();
+            this.dhlLabelGetStep = new DhlLabelGetStep();
+            this.labelAddToDbStep = new LabelAddToDbStep();
+
+            PipelineSteps = async(input) =>
             {
-                var label = input
-                    .Step(new AddressGetStep())
-                    .Step(new DhlLabelGetStep());
+                var dhlLabel = input
+                    .Step(this.addressGetStep)
+                    .Step(this.dhlLabelGetStep);
 
-                label.Step(new LabelAddToDbStep());
+                await dhlLabel
+                    .Step(this.labelAddToDbStep);
 
-                return label;
+                // Possibility to use other pipelines
+                //await dhlLabel
+                //    .Step(new LabelAddToDbPipeline());
+
+                return await dhlLabel;
             };
         }
     }

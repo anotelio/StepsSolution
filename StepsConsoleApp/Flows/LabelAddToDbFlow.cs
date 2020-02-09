@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Pipelines;
 
@@ -6,14 +6,20 @@ namespace StepsConsoleApp.Flows
 {
     public class LabelAddToDbFlow
     {
-        public void Run(LabelDto label)
+        private readonly LabelAddToDbPipeline labelAddToDbPipeline;
+
+        public LabelAddToDbFlow()
         {
-            Console.WriteLine($"Start LabelAddToDbFlow.");
+            this.labelAddToDbPipeline = new LabelAddToDbPipeline();
+        }
 
-            var pipeline = new LabelAddToDbPipeline();
-            pipeline.Run(label);
+        public async Task RunAsync(LabelDto label)
+        {
+            await this.labelAddToDbPipeline
+                .RunAsync(Task.FromResult(label));
 
-            Console.WriteLine($"Finish LabelAddToDbFlow.");
+            await new LabelDbOperationsPipeline()
+                .RunAsync(null);
         }
     }
 }

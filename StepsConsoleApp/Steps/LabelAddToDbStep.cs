@@ -1,4 +1,5 @@
-﻿using StepsConsoleApp.Contracts;
+﻿using System.Threading.Tasks;
+using StepsConsoleApp.Contracts;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Data;
 
@@ -6,9 +7,12 @@ namespace StepsConsoleApp.Steps
 {
     public class LabelAddToDbStep : IPipelineStep<LabelDto>
     {
-        public void Run(LabelDto label)
+        public async Task RunAsync(Task<LabelDto> label)
         {
-            DataValues.LabelAddToDb(label.ReturnHeadId, label.Carrier, label.LabelFile);
+            var param = await label;
+            await DataValues.LabelAddToDb(param.ReturnHeadId,
+                param.Carrier,
+                param.LabelFile);
         }
     }
 }

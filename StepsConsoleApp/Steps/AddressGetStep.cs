@@ -1,4 +1,5 @@
-﻿using StepsConsoleApp.Contracts;
+﻿using System.Threading.Tasks;
+using StepsConsoleApp.Contracts;
 using StepsConsoleApp.Contracts.Dtos;
 using StepsConsoleApp.Data;
 
@@ -6,9 +7,9 @@ namespace StepsConsoleApp.Steps
 {
     public class AddressGetStep : IPipelineStep<long, AddressDto>
     {
-        public AddressDto Run(long returnHeadId)
+        public async Task<AddressDto> RunAsync(Task<long> returnHeadId)
         {
-            return DataValues.AdressGet(returnHeadId);
+            return await DataValues.AdressGet(returnHeadId.Result);
         }
     }
 }
