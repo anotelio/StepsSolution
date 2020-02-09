@@ -4,16 +4,14 @@ using System.Threading.Tasks;
 namespace StepsConsoleApp.Contracts
 {
     /// <summary>
-    /// A base interface required so that reflection code can create a Step from its type name,
-    /// without needing to understand its generic parameters first.
+    /// Base type for individual pipeline steps.
     /// </summary>
     public interface IPipelineStep
     {
-        Task RunAsync();
+        Task RunAsync(Task input);
     }
 
     /// <summary>
-    /// Base type for individual pipeline steps.
     /// Descendants of this type map an input value to an output value.
     /// The input and output types can differ.
     /// </summary>
@@ -22,6 +20,9 @@ namespace StepsConsoleApp.Contracts
         Task<OUTPUT> RunAsync(Task<INPUT> input);
     }
 
+    /// <summary>
+    /// Descendants of this type has an input value.
+    /// </summary>
     public interface IPipelineStep<INPUT>
     {
         Task RunAsync(Task<INPUT>input);
@@ -32,9 +33,9 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public static class PipelineStepExtensions
     {
-        public static async Task Step(IPipelineStep step)
+        public static async Task Step(this Task input, IPipelineStep step)
         {
-            await step.RunAsync();
+            await step.RunAsync(input);
         }
 
         public static async Task<OUTPUT> Step<INPUT, OUTPUT>(this Task<INPUT> input, IPipelineStep<INPUT, OUTPUT> step)
@@ -52,19 +53,24 @@ namespace StepsConsoleApp.Contracts
     /// The base type for a complete pipeline.
     /// Descendant types can use their constructor to compile a set of PipelineSteps together
     /// the PipelineStepExtensions.Step() method, and assign this to the PipelineSteps property here.
-    /// The initial and final types of the set of steps must match the input and output types of this class,
-    /// but the intermediate types can vary.
+    /// The initial and final types of the set of steps must have the input Task type of this class.
     /// </summary>
     public partial class Pipeline : IPipelineStep
     {
         public Action<Task> PipelineSteps { get; protected set; }
 
-        public async Task RunAsync()
+        public async Task RunAsync(Task input)
         {
-            await Task.Run(() => PipelineSteps);
+            await Task.Run(() => PipelineSteps(input));
         }
     }
 
+    /// <summary>
+    /// Descendant types can use their constructor to compile a set of PipelineSteps together
+    /// the PipelineStepExtensions.Step() method, and assign this to the PipelineSteps property here.
+    /// The initial and final types of the set of steps must have the input and output types of this class,
+    /// but the intermediate types can vary.
+    /// </summary>
     public partial class Pipeline<INPUT, OUTPUT> : IPipelineStep<INPUT, OUTPUT>
     {
         public Func<Task<INPUT>, Task<OUTPUT>> PipelineSteps { get; protected set; }
@@ -75,6 +81,12 @@ namespace StepsConsoleApp.Contracts
         }
     }
 
+    /// <summary>
+    /// Descendant types can use their constructor to compile a set of PipelineSteps together
+    /// the PipelineStepExtensions.Step() method, and assign this to the PipelineSteps property here.
+    /// The initial and final types of the set of steps must have the input type of this class,
+    /// and the intermediate type can vary.
+    /// </summary>
     public partial class Pipeline<INPUT> : IPipelineStep<INPUT>
     {
         public Action<Task<INPUT>> PipelineSteps { get; protected set; }

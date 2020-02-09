@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using StepsConsoleApp.Contracts;
+﻿using StepsConsoleApp.Contracts;
 using StepsConsoleApp.Steps;
 
 namespace StepsConsoleApp.Pipelines
 {
-    public class LabelDbOperationsPipeline : Pipeline<object>
+    public class LabelDbOperationsPipeline : Pipeline
     {
         private readonly LabelDbOperationsStep labelDbOperationsStep;
 

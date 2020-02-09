@@ -4,9 +4,9 @@ using StepsConsoleApp.Data;
 
 namespace StepsConsoleApp.Steps
 {
-    public class LabelDbOperationsStep : IPipelineStep<object>
+    public class LabelDbOperationsStep : IPipelineStep
     {
-        public async Task RunAsync(Task<object> obj)
+        public async Task RunAsync(Task task)
         {
             await DataValues.LabelDbOperations();
         }
