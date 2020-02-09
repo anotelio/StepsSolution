@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace StepsConsoleApp.Contracts
@@ -8,7 +9,7 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public interface IPipelineStep
     {
-        Task RunAsync(Task input);
+        Task RunAsync();
     }
 
     /// <summary>
@@ -33,17 +34,20 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public static class PipelineStepExtensions
     {
-        public static async Task Step(this Task input, IPipelineStep step)
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
+        public static async Task Step(this IPipelineStep input, IPipelineStep step)
         {
-            await step.RunAsync(input);
+            await step.RunAsync();
         }
 
-        public static async Task<OUTPUT> Step<INPUT, OUTPUT>(this Task<INPUT> input, IPipelineStep<INPUT, OUTPUT> step)
+        public static async Task<OUTPUT> Step<INPUT, OUTPUT>(this Task<INPUT> input,
+            IPipelineStep<INPUT, OUTPUT> step)
         {
             return await step.RunAsync(input);
         }
 
-        public static async Task Step<INPUT>(this Task<INPUT> input, IPipelineStep<INPUT> step)
+        public static async Task Step<INPUT>(this Task<INPUT> input,
+            IPipelineStep<INPUT> step)
         {
             await step.RunAsync(input);
         }
@@ -57,11 +61,11 @@ namespace StepsConsoleApp.Contracts
     /// </summary>
     public partial class Pipeline : IPipelineStep
     {
-        public Action<Task> PipelineSteps { get; protected set; }
+        public Action PipelineSteps { get; protected set; }
 
-        public async Task RunAsync(Task input)
+        public async Task RunAsync()
         {
-            await Task.Run(() => PipelineSteps(input));
+            await Task.Run(PipelineSteps);
         }
     }
 

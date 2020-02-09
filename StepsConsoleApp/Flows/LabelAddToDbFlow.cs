@@ -19,7 +19,7 @@ namespace StepsConsoleApp.Flows
                 .RunAsync(Task.FromResult(label));
 
             await new LabelDbOperationsPipeline()
-                .RunAsync(null);
+                .RunAsync();
         }
     }
 }

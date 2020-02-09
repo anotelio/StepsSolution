@@ -11,9 +11,9 @@ namespace StepsConsoleApp.Pipelines
         {
             this.labelDbOperationsStep = new LabelDbOperationsStep();
 
-            PipelineSteps = async (input) =>
+            PipelineSteps = async () =>
             {
-                await input.Step(this.labelDbOperationsStep);
+                await this.Step(this.labelDbOperationsStep);
             };
         }
     }

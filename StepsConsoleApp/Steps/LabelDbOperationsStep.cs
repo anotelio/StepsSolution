@@ -6,7 +6,7 @@ namespace StepsConsoleApp.Steps
 {
     public class LabelDbOperationsStep : IPipelineStep
     {
-        public async Task RunAsync(Task task)
+        public async Task RunAsync()
         {
             await DataValues.LabelDbOperations();
         }
