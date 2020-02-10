@@ -13,10 +13,15 @@ namespace StepsConsoleApp.Flows
             this.returnLabelPipeline = new ReturnLabelPipeline();
         }
 
-        public async Task<LabelDto> RunAsync(long returnHeadId)
+        public async Task<LabelDto> RunAsync(Task<long> returnHeadId)
         {
-            return await this.returnLabelPipeline
-                .RunAsync(Task.FromResult(returnHeadId));
+            var output = await this.returnLabelPipeline
+                .RunAsync(returnHeadId);
+
+            //await new LabelDbOperationsPipeline()
+            //    .RunAsync();
+
+            return output;
         }
     }
 }

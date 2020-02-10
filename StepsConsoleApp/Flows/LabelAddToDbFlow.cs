@@ -13,10 +13,10 @@ namespace StepsConsoleApp.Flows
             this.labelAddToDbPipeline = new LabelAddToDbPipeline();
         }
 
-        public async Task RunAsync(LabelDto label)
+        public async Task RunAsync(Task<LabelDto> label)
         {
             await this.labelAddToDbPipeline
-                .RunAsync(Task.FromResult(label));
+                .RunAsync(label);
 
             await new LabelDbOperationsPipeline()
                 .RunAsync();

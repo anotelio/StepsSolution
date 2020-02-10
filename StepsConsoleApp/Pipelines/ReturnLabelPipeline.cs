@@ -11,14 +11,13 @@ namespace StepsConsoleApp.Pipelines
         private readonly DhlLabelGetStep dhlLabelGetStep;
 
         private readonly LabelAddToDbStep labelAddToDbStep;
-
         public ReturnLabelPipeline()
         {
             this.addressGetStep = new AddressGetStep();
             this.dhlLabelGetStep = new DhlLabelGetStep();
             this.labelAddToDbStep = new LabelAddToDbStep();
-
-            PipelineSteps = async(input) =>
+            
+            PipelineSteps = async (input) =>
             {
                 var dhlLabel = input
                     .Step(this.addressGetStep)

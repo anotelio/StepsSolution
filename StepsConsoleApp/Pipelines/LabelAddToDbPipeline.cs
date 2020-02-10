@@ -12,7 +12,7 @@ namespace StepsConsoleApp.Pipelines
         {
             this.labelAddToDbStep = new LabelAddToDbStep();
 
-            PipelineSteps = async(input) =>
+            PipelineSteps = async (input) =>
             {
                 await input.Step(this.labelAddToDbStep);
             };
